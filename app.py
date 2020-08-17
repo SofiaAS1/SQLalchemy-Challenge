@@ -24,7 +24,7 @@ session = Session(engine)
 def home():
 
     return (
-        f"Welcome to The Climate App API!<br/>"
+        f"Welcome to Sofie's OFFICIAL Climate App API!<br/>"
         f"<br/>"
         f"Available Routes are:<br/>"
         f"/api/v1.0/precipitation<br/>"
@@ -33,7 +33,7 @@ def home():
         f"/api/v1.0/<start><br/>"
         f"/api/v1.0/<start>/<end><br/>"
         f"<br/>"
-        f"May Your Days Be Bright & Sunny!"
+        f"May Your Days Be Bright & Sunny, but Your Hair NEVER Frizzy!"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -42,7 +42,6 @@ def precipitation():
     lastDate = dt.datetime.strptime(lastDate, '%Y-%m-%d')
     priorYear = lastDate - dt.timedelta(365)
     result = session.query(measurement.date, measurement.prcp).filter(measurement.date>=priorYear).all()
-    session.close()
     precipitation = []
     for date, prcp in result:
         precipitation_dict = {}
@@ -55,9 +54,9 @@ def precipitation():
 @app.route("/api/v1.0/stations")
 def stations():
     results = session.query(station.station,station.name)\
-.group_by(station.name)\
-.order_by(station.name)\
-.all()
+    .group_by(station.name)\
+    .order_by(station.name)\
+    .all()
 
     stations = list(np.ravel(results))
 
@@ -65,11 +64,33 @@ def stations():
 
 @app.route("/api/v1.0/tobs")
 def TObs():
-    return "Welcome to my 'TObs' page!"
+    lastDate = session.query(func.max(measurement.date)).all()[0][0]
+    lastDate = dt.datetime.strptime(lastDate, '%Y-%m-%d')
+    priorYear = lastDate - dt.timedelta(365)
+    results = session.query(measurement.tobs, measurement.date)\
+    .filter(measurement.station == 'USC00519281', measurement.date>=priorYear).all()
+
+    TObs = list(np.ravel(results))
+
+    return jsonify(TObs)
 
 @app.route("/api/v1.0/<start>")
-def Start():
-    return "Welcome to my 'Start' page!"
+def start():
+    date = "%m-%d"
+    min = func.min(measurement.tobs)
+    avg = func.avg(measurement.tobs)
+    max = func.max(measurement.tobs)
+    sel = [min, avg, max]
+    result = session.query(*sel).filter(func.strftime("%m-%d", measurement.date) >= date).all()
+    start = []
+    for min, avg, max in result:
+        start_dict = {}
+        start_dict["min"] = TMin
+        start_dict["avg"] = TAvg
+        start_dict["max"] = TMax
+        start.append(start_dict)
+
+    return jsonify(start)
 
 @app.route("/api/v1.0/<start>/<end>")
 def SnE():
