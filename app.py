@@ -30,8 +30,8 @@ def home():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/start (start date must be in quotes & in mm-dd format) <br/>"
-        f"/api/v1.0/start/end (start & end dates must be in quotes & in yyyy-mm-dd format) <br/>"
+        f"/api/v1.0/start (start date must be in mm-dd format) <br/>"
+        f"/api/v1.0/start/end (start & end dates must be in yyyy-mm-dd format) <br/>"
         f"<br/>"
         f"May Your Days Be Bright & Sunny, but Your Hair NEVER Frizzy!"
     )
@@ -100,7 +100,7 @@ def SnE(start, end):
     result = session.query(*sel).filter(measurement.date >= start).filter(measurement.date <= end).all()
     end = []
     for tmin, tavg, tmax in result:
-        end_dict = {}
+        end_dict = {} 
         end_dict["tmin"] = tmin
         end_dict["tavg"] = tavg
         end_dict["tmax"] = tmax
