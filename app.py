@@ -30,8 +30,8 @@ def home():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<start>/<end><br/>"
+        f"/api/v1.0/start (start date must be in quotes & in mm-dd format) <br/>"
+        f"/api/v1.0/start/end (start & end dates must be in quotes & in yyyy-mm-dd format) <br/>"
         f"<br/>"
         f"May Your Days Be Bright & Sunny, but Your Hair NEVER Frizzy!"
     )
@@ -75,26 +75,38 @@ def TObs():
     return jsonify(TObs)
 
 @app.route("/api/v1.0/<start>")
-def start():
-    date = "%m-%d"
-    min = func.min(measurement.tobs)
-    avg = func.avg(measurement.tobs)
-    max = func.max(measurement.tobs)
-    sel = [min, avg, max]
-    result = session.query(*sel).filter(func.strftime("%m-%d", measurement.date) >= date).all()
+def start(start):
+    tmin = func.min(measurement.tobs)
+    tavg = func.avg(measurement.tobs)
+    tmax = func.max(measurement.tobs)
+    sel = [tmin, tavg, tmax]
+    result = session.query(*sel).filter(func.strftime("%m-%d", measurement.date) >= start).all()
     start = []
-    for min, avg, max in result:
+    for tmin, tavg, tmax in result:
         start_dict = {}
-        start_dict["min"] = TMin
-        start_dict["avg"] = TAvg
-        start_dict["max"] = TMax
+        start_dict["tmin"] = tmin
+        start_dict["tavg"] = tavg
+        start_dict["tmax"] = tmax
         start.append(start_dict)
 
     return jsonify(start)
 
 @app.route("/api/v1.0/<start>/<end>")
-def SnE():
-    return "Welcome to my 'Start & End' page!"
+def SnE(start, end):
+    tmin = func.min(measurement.tobs)
+    tavg = func.avg(measurement.tobs)
+    tmax = func.max(measurement.tobs)
+    sel = [tmin, tavg, tmax]
+    result = session.query(*sel).filter(measurement.date >= start).filter(measurement.date <= end).all()
+    end = []
+    for tmin, tavg, tmax in result:
+        end_dict = {}
+        end_dict["tmin"] = tmin
+        end_dict["tavg"] = tavg
+        end_dict["tmax"] = tmax
+        end.append(end_dict)
+
+    return jsonify(end)
 
 if __name__ == "__main__":
     app.run(debug=True)
