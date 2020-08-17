@@ -17,7 +17,6 @@ Base.prepare(engine, reflect=True)
 
 measurement = Base.classes.measurement
 station = Base.classes.station
-
 session = Session(engine)
 
 @app.route("/")
@@ -38,6 +37,7 @@ def home():
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
+    
     lastDate = session.query(func.max(measurement.date)).all()[0][0]
     lastDate = dt.datetime.strptime(lastDate, '%Y-%m-%d')
     priorYear = lastDate - dt.timedelta(365)
