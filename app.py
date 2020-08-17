@@ -54,7 +54,14 @@ def precipitation():
 
 @app.route("/api/v1.0/stations")
 def stations():
-    return "Welcome to my 'stations' page!"
+    results = session.query(station.station,station.name)\
+.group_by(station.name)\
+.order_by(station.name)\
+.all()
+
+    stations = list(np.ravel(results))
+
+    return jsonify(stations)
 
 @app.route("/api/v1.0/tobs")
 def TObs():
